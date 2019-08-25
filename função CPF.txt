@@ -1,0 +1,57 @@
+create or replace function validacpf (cpfNumerico number) return number is
+soma number(10):=0;
+cpf char(11);
+mult number(2):= 11;
+resto number:=0;
+begin
+
+	cpf:=LPAD(cpfNumerico, 11, '0');
+	
+	for contador in 1..9 loop
+		soma:= soma + SUBSTR(cpf, contador, 1) * (mult - contador);
+	end loop;
+	resto:=MOD(soma,11);
+	
+	if (resto=0 or resto=1) then
+		if(not SUBSTR(cpf, 10, 1)=0) then
+			--raise_application_error(-20001,'CPF Invalido');
+			return -2001;
+		end if;
+	else
+		resto:=11-resto;
+	end if;
+	
+	
+	if(ABS(resto)!=SUBSTR(cpf, 10, 1)) then
+		--raise_application_error(-20001,'CPF Invalido');
+		return -2001;
+	else
+		soma:=0;
+		mult:=12;
+		for contador in 1..10 loop
+			soma:= soma + SUBSTR(cpf, contador, 1) * (mult - contador);
+		end loop;
+		resto:=MOD(soma,10);
+
+		if (resto=0 or resto=1) then
+			if(not SUBSTR(cpf, 11, 1)=0) then
+				--raise_application_error(-20001,'CPF Invalido');
+				return -2001;
+			end if;
+		else
+			resto:=11-resto;
+		end if;
+		
+		if(resto!=SUBSTR(cpf, 11, 1)) then
+			--raise_application_error(-20001,'CPF Invalido');
+			return -2001;
+		else
+			dbms_output.put_line('CPF Correto!');
+			return 0;
+		end if;
+	end if;
+end;
+/
+
+	
+	
